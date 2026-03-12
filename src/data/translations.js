@@ -152,6 +152,7 @@ export const T = {
     subDashboard: "Tu resumen financiero de un vistazo", subTransactions: "Todos tus ingresos y gastos", subSubscriptions: "Gestiona tus pagos recurrentes", subSavings: "Sigue tu progreso hacia tus metas", subSettings: "Configura tu experiencia SpendSmart",
     dayOf: "Día", of: "de", noTransactionsMonth: "Sin transacciones este mes.", editMonthlyGoal: "Editar meta mensual", monthlyGoalDesc: "Este monto se reserva antes de calcular el presupuesto diario.",
   },
+  fr: {
     dashboard: "Tableau de bord", transactions: "Transactions", subscriptions: "Abonnements",
     savings: "Épargne", settings: "Paramètres", quickAdd: "Ajouter",
     goodDay: "Bonjour", daysLeft: "jours restants ce mois",
@@ -206,6 +207,7 @@ export const T = {
     subDashboard: "Votre aperçu financier en un coup d'œil", subTransactions: "Tous vos revenus et dépenses", subSubscriptions: "Gérez vos paiements récurrents", subSavings: "Suivez vos progrès vers vos objectifs", subSettings: "Configurez votre expérience SpendSmart",
     dayOf: "Jour", of: "sur", noTransactionsMonth: "Aucune transaction ce mois.", editMonthlyGoal: "Modifier l'objectif mensuel", monthlyGoalDesc: "Ce montant est réservé avant le calcul du budget journalier.",
   },
+  de: {
     dashboard: "Dashboard", transactions: "Transaktionen", subscriptions: "Abonnements",
     savings: "Ersparnisse", settings: "Einstellungen", quickAdd: "Hinzufügen",
     goodDay: "Guten Tag", daysLeft: "Tage verbleiben diesen Monat",
@@ -260,6 +262,7 @@ export const T = {
     subDashboard: "Ihr Finanzüberblick auf einen Blick", subTransactions: "Alle Einnahmen und Ausgaben", subSubscriptions: "Wiederkehrende Zahlungen verwalten", subSavings: "Verfolgen Sie Ihren Fortschritt", subSettings: "SpendSmart konfigurieren",
     dayOf: "Tag", of: "von", noTransactionsMonth: "Noch keine Transaktionen diesen Monat.", editMonthlyGoal: "Monatsziel bearbeiten", monthlyGoalDesc: "Dieser Betrag wird vor der Berechnung des Tagesbudgets reserviert.",
   },
+  pt: {
     dashboard: "Painel", transactions: "Transações", subscriptions: "Assinaturas",
     savings: "Poupanças", settings: "Configurações", quickAdd: "Adicionar",
     goodDay: "Bom dia", daysLeft: "dias restantes neste mês",
@@ -369,6 +372,7 @@ export const T = {
     subDashboard: "財務状況の概要", subTransactions: "すべての収支", subSubscriptions: "定期支払いを管理", subSavings: "目標への進捗を確認", subSettings: "SpendSmartを設定",
     dayOf: "日", of: "/", noTransactionsMonth: "今月の取引はまだありません。", editMonthlyGoal: "月次目標を編集", monthlyGoalDesc: "この金額は日次予算計算前に予約されます。",
   },
+  zh: {
     dashboard: "仪表板", transactions: "交易", subscriptions: "订阅",
     savings: "储蓄", settings: "设置", quickAdd: "添加",
     goodDay: "你好", daysLeft: "天剩余本月",
@@ -423,6 +427,7 @@ export const T = {
     subDashboard: "您的财务概览", subTransactions: "所有收支记录", subSubscriptions: "管理定期付款", subSavings: "追踪目标进度", subSettings: "配置您的体验",
     dayOf: "第", of: "天/共", noTransactionsMonth: "本月暂无交易。", editMonthlyGoal: "编辑月度目标", monthlyGoalDesc: "此金额在计算每日预算前预留。",
   },
+  ar: {
     dashboard: "لوحة التحكم", transactions: "المعاملات", subscriptions: "الاشتراكات",
     savings: "المدخرات", settings: "الإعدادات", quickAdd: "إضافة",
     goodDay: "مرحباً", daysLeft: "أيام متبقية هذا الشهر",
@@ -477,6 +482,7 @@ export const T = {
     subDashboard: "نظرة عامة على وضعك المالي", subTransactions: "جميع الإيرادات والمصروفات", subSubscriptions: "إدارة المدفوعات المتكررة", subSavings: "تتبع تقدمك نحو أهدافك", subSettings: "تخصيص تجربة SpendSmart",
     dayOf: "اليوم", of: "من", noTransactionsMonth: "لا توجد معاملات هذا الشهر.", editMonthlyGoal: "تعديل الهدف الشهري", monthlyGoalDesc: "يتم حجز هذا المبلغ قبل حساب الميزانية اليومية.",
   },
+  cs: {
     wizardWelcome: "Vítejte v SpendSmart", wizardSub: "Nastavme váš účet ve 3 krocích.",
     wizardStep1: "Jak se jmenujete?", wizardStep1sub: "Použijeme to k personalizaci vaší zkušenosti.",
     wizardStep2: "Zvolte jazyk", wizardStep2sub: "Můžete to kdykoli změnit v Nastavení.",
