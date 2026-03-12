@@ -117,32 +117,13 @@ export default function App() {
 
       {/* Bottom nav — mobile only */}
       <nav className="bottom-nav">
-        {NAV.slice(0, 2).map((n) => (
+        {NAV.map((n) => (
           <div key={n.id} className={`bottom-nav-btn ${page === n.id ? "active" : ""}`}
             onClick={() => setPage(n.id)}>
             <span className="bottom-icon">{n.icon}</span>
             <span className="bottom-label">{n.label}</span>
           </div>
         ))}
-
-        {/* Centre add button */}
-        <div className="bottom-nav-add" onClick={() => setAddModal(true)}>
-          <div className="add-bubble">+</div>
-        </div>
-
-        {NAV.slice(2, 4).map((n) => (
-          <div key={n.id} className={`bottom-nav-btn ${page === n.id ? "active" : ""}`}
-            onClick={() => setPage(n.id)}>
-            <span className="bottom-icon">{n.icon}</span>
-            <span className="bottom-label">{n.label}</span>
-          </div>
-        ))}
-
-        <div className={`bottom-nav-btn ${page === "settings" ? "active" : ""}`}
-          onClick={() => setPage("settings")}>
-          <span className="bottom-icon">⚙</span>
-          <span className="bottom-label">{t.settings}</span>
-        </div>
       </nav>
 
       {(addModal || editTx) && (
