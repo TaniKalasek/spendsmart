@@ -54,8 +54,9 @@ export function useStore(userId) {
 
   // ── Transactions ──────────────────────────────────────
   const addTransaction = useCallback(async (tx) => {
-    const row = { ...tx, user_id: userId }
-    const { data } = await supabase.from('transactions').insert(row).select().single()
+    const row = { id: crypto.randomUUID(), ...tx, user_id: userId }
+    const { data, error } = await supabase.from('transactions').insert(row).select().single()
+    if (error) { console.error('addTransaction error:', error); return; }
     if (data) setState(s => ({ ...s, transactions: [data, ...s.transactions] }))
   }, [userId])
 
@@ -70,15 +71,17 @@ export function useStore(userId) {
   }, [userId])
 
   const importTransactions = useCallback(async (txs) => {
-    const rows = txs.map(tx => ({ ...tx, user_id: userId }))
-    const { data } = await supabase.from('transactions').insert(rows).select()
+    const rows = txs.map(tx => ({ id: crypto.randomUUID(), ...tx, user_id: userId }))
+    const { data, error } = await supabase.from('transactions').insert(rows).select()
+    if (error) { console.error('importTransactions error:', error); return; }
     if (data) setState(s => ({ ...s, transactions: [...data, ...s.transactions] }))
   }, [userId])
 
   // ── Subscriptions ─────────────────────────────────────
   const addSubscription = useCallback(async (sub) => {
-    const row = { ...sub, user_id: userId }
-    const { data } = await supabase.from('subscriptions').insert(row).select().single()
+    const row = { id: crypto.randomUUID(), ...sub, user_id: userId }
+    const { data, error } = await supabase.from('subscriptions').insert(row).select().single()
+    if (error) { console.error('addSubscription error:', error); return; }
     if (data) setState(s => ({ ...s, subscriptions: [...s.subscriptions, data] }))
   }, [userId])
 
@@ -102,8 +105,9 @@ export function useStore(userId) {
 
   // ── Savings ───────────────────────────────────────────
   const addSavingsGoal = useCallback(async (goal) => {
-    const row = { ...goal, user_id: userId }
-    const { data } = await supabase.from('savings').insert(row).select().single()
+    const row = { id: crypto.randomUUID(), ...goal, user_id: userId }
+    const { data, error } = await supabase.from('savings').insert(row).select().single()
+    if (error) { console.error('addSavingsGoal error:', error); return; }
     if (data) setState(s => ({ ...s, savings: [...s.savings, data] }))
   }, [userId])
 
