@@ -10,10 +10,18 @@ const EMPTY_STATE = {
   loading: true,
 }
 
+// Supabase returns snake_case — convert to camelCase for the app
+const mapSub = (s) => ({ ...s, nextDate: s.next_date })
+const mapSettings = (s) => ({
+  name: s.name || '',
+  language: s.language || 'en',
+  currency: s.currency || 'CZK',
+  monthlySavingsGoal: s.monthly_savings_goal || 0,
+})
+
 export function useStore(userId) {
   const [state, setState] = useState(EMPTY_STATE)
 
-  // Load all data from Supabase on mount
   useEffect(() => {
     if (!userId) return
     loadAll()
@@ -23,26 +31,17 @@ export function useStore(userId) {
     setState(s => ({ ...s, loading: true }))
     try {
       const [txRes, subRes, savRes, setRes] = await Promise.all([
-        supabase.from('transactions').select('*').eq('user_id', userId).order('date', { ascending: false }),
+        supabase.from('transactions').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
         supabase.from('subscriptions').select('*').eq('user_id', userId),
         supabase.from('savings').select('*').eq('user_id', userId),
         supabase.from('user_settings').select('*').eq('id', userId).single(),
       ])
 
-      const settings = setRes.data
-        ? {
-            name: setRes.data.name || '',
-            language: setRes.data.language || 'en',
-            currency: setRes.data.currency || 'CZK',
-            monthlySavingsGoal: setRes.data.monthly_savings_goal || 0,
-          }
-        : { name: '', language: 'en', currency: 'CZK', monthlySavingsGoal: 0 }
-
       setState({
         transactions: txRes.data || [],
-        subscriptions: subRes.data || [],
+        subscriptions: (subRes.data || []).map(mapSub),
         savings: savRes.data || [],
-        settings,
+        settings: setRes.data ? mapSettings(setRes.data) : { name: '', language: 'en', currency: 'CZK', monthlySavingsGoal: 0 },
         isNewUser: !setRes.data,
         loading: false,
       })
@@ -56,12 +55,13 @@ export function useStore(userId) {
   const addTransaction = useCallback(async (tx) => {
     const row = { id: crypto.randomUUID(), ...tx, user_id: userId }
     const { data, error } = await supabase.from('transactions').insert(row).select().single()
-    if (error) { console.error('addTransaction error:', error); return; }
+    if (error) { console.error('addTransaction:', error.message); return }
     if (data) setState(s => ({ ...s, transactions: [data, ...s.transactions] }))
   }, [userId])
 
   const editTransaction = useCallback(async (id, patch) => {
-    await supabase.from('transactions').update(patch).eq('id', id).eq('user_id', userId)
+    const { error } = await supabase.from('transactions').update(patch).eq('id', id).eq('user_id', userId)
+    if (error) { console.error('editTransaction:', error.message); return }
     setState(s => ({ ...s, transactions: s.transactions.map(t => t.id === id ? { ...t, ...patch } : t) }))
   }, [userId])
 
@@ -73,20 +73,25 @@ export function useStore(userId) {
   const importTransactions = useCallback(async (txs) => {
     const rows = txs.map(tx => ({ id: crypto.randomUUID(), ...tx, user_id: userId }))
     const { data, error } = await supabase.from('transactions').insert(rows).select()
-    if (error) { console.error('importTransactions error:', error); return; }
+    if (error) { console.error('importTransactions:', error.message); return }
     if (data) setState(s => ({ ...s, transactions: [...data, ...s.transactions] }))
   }, [userId])
 
   // ── Subscriptions ─────────────────────────────────────
   const addSubscription = useCallback(async (sub) => {
-    const row = { id: crypto.randomUUID(), ...sub, user_id: userId }
+    // convert camelCase nextDate → snake_case next_date for DB
+    const { nextDate, ...rest } = sub
+    const row = { id: crypto.randomUUID(), ...rest, next_date: nextDate || new Date().toISOString(), user_id: userId }
     const { data, error } = await supabase.from('subscriptions').insert(row).select().single()
-    if (error) { console.error('addSubscription error:', error); return; }
-    if (data) setState(s => ({ ...s, subscriptions: [...s.subscriptions, data] }))
+    if (error) { console.error('addSubscription:', error.message); return }
+    if (data) setState(s => ({ ...s, subscriptions: [...s.subscriptions, mapSub(data)] }))
   }, [userId])
 
   const editSubscription = useCallback(async (id, patch) => {
-    await supabase.from('subscriptions').update(patch).eq('id', id).eq('user_id', userId)
+    const { nextDate, ...rest } = patch
+    const dbPatch = { ...rest, ...(nextDate ? { next_date: nextDate } : {}) }
+    const { error } = await supabase.from('subscriptions').update(dbPatch).eq('id', id).eq('user_id', userId)
+    if (error) { console.error('editSubscription:', error.message); return }
     setState(s => ({ ...s, subscriptions: s.subscriptions.map(sub => sub.id === id ? { ...sub, ...patch } : sub) }))
   }, [userId])
 
@@ -107,20 +112,22 @@ export function useStore(userId) {
   const addSavingsGoal = useCallback(async (goal) => {
     const row = { id: crypto.randomUUID(), ...goal, user_id: userId }
     const { data, error } = await supabase.from('savings').insert(row).select().single()
-    if (error) { console.error('addSavingsGoal error:', error); return; }
+    if (error) { console.error('addSavingsGoal:', error.message); return }
     if (data) setState(s => ({ ...s, savings: [...s.savings, data] }))
   }, [userId])
 
   const editSavingsGoal = useCallback(async (id, patch) => {
-    await supabase.from('savings').update(patch).eq('id', id).eq('user_id', userId)
+    const { error } = await supabase.from('savings').update(patch).eq('id', id).eq('user_id', userId)
+    if (error) { console.error('editSavingsGoal:', error.message); return }
     setState(s => ({ ...s, savings: s.savings.map(g => g.id === id ? { ...g, ...patch } : g) }))
   }, [userId])
 
   const updateSavingsGoal = useCallback(async (id, delta) => {
     const goal = state.savings.find(g => g.id === id)
     if (!goal) return
-    const saved = Math.max(0, (goal.saved || 0) + delta)
-    await supabase.from('savings').update({ saved }).eq('id', id).eq('user_id', userId)
+    const saved = Math.max(0, (parseFloat(goal.saved) || 0) + delta)
+    const { error } = await supabase.from('savings').update({ saved }).eq('id', id).eq('user_id', userId)
+    if (error) { console.error('updateSavingsGoal:', error.message); return }
     setState(s => ({ ...s, savings: s.savings.map(g => g.id === id ? { ...g, saved } : g) }))
   }, [userId, state.savings])
 
@@ -131,14 +138,13 @@ export function useStore(userId) {
 
   // ── Settings ──────────────────────────────────────────
   const updateSettings = useCallback(async (patch) => {
-    const dbPatch = {}
+    const dbPatch = { updated_at: new Date().toISOString() }
     if (patch.name !== undefined) dbPatch.name = patch.name
     if (patch.language !== undefined) dbPatch.language = patch.language
     if (patch.currency !== undefined) dbPatch.currency = patch.currency
     if (patch.monthlySavingsGoal !== undefined) dbPatch.monthly_savings_goal = patch.monthlySavingsGoal
-    dbPatch.updated_at = new Date().toISOString()
-
-    await supabase.from('user_settings').upsert({ id: userId, ...dbPatch })
+    const { error } = await supabase.from('user_settings').upsert({ id: userId, ...dbPatch })
+    if (error) { console.error('updateSettings:', error.message); return }
     setState(s => ({ ...s, settings: { ...s.settings, ...patch }, isNewUser: false }))
   }, [userId])
 
