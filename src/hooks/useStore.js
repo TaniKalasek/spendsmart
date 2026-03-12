@@ -79,8 +79,7 @@ export function useStore(userId) {
 
   // ── Subscriptions ─────────────────────────────────────
   const addSubscription = useCallback(async (sub) => {
-    // convert camelCase nextDate → snake_case next_date for DB
-    const { nextDate, ...rest } = sub
+    const { nextDate, category, ...rest } = sub  // strip category (not in DB), convert nextDate
     const row = { id: crypto.randomUUID(), ...rest, next_date: nextDate || new Date().toISOString(), user_id: userId }
     const { data, error } = await supabase.from('subscriptions').insert(row).select().single()
     if (error) { console.error('addSubscription:', error.message); return }
