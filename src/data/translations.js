@@ -80,6 +80,19 @@ export const T = {
     food: "Food", transport: "Transport", shopping: "Shopping", bills: "Bills",
     health: "Health", fun: "Fun", subscriptionsCat: "Subscriptions", other: "Other",
     salary: "Salary", client: "Client", freelance: "Freelance",
+    // Page subtitles
+    subDashboard: "Your financial overview at a glance",
+    subTransactions: "All your income and expenses in one place",
+    subSubscriptions: "Track recurring payments and decide what to keep",
+    subSavings: "Track your progress toward what matters most",
+    subSettings: "Configure your SpendSmart experience",
+    // Day progress
+    dayOf: "Day", of: "of",
+    // No transactions
+    noTransactionsMonth: "No transactions this month yet.",
+    // Monthly goal in savings
+    editMonthlyGoal: "Edit Monthly Goal",
+    monthlyGoalDesc: "Reserved from your balance before calculating daily budget.",
     // Misc
     monthly: "Monthly", yearly: "Yearly", weekly: "Weekly",
     inDays: "in", day: "d",
@@ -136,8 +149,9 @@ export const T = {
     health: "Salud", fun: "Diversión", subscriptionsCat: "Suscripciones", other: "Otro",
     salary: "Salario", client: "Cliente", freelance: "Freelance",
     monthly: "Mensual", yearly: "Anual", weekly: "Semanal", inDays: "en", day: "d",
+    subDashboard: "Tu resumen financiero de un vistazo", subTransactions: "Todos tus ingresos y gastos", subSubscriptions: "Gestiona tus pagos recurrentes", subSavings: "Sigue tu progreso hacia tus metas", subSettings: "Configura tu experiencia SpendSmart",
+    dayOf: "Día", of: "de", noTransactionsMonth: "Sin transacciones este mes.", editMonthlyGoal: "Editar meta mensual", monthlyGoalDesc: "Este monto se reserva antes de calcular el presupuesto diario.",
   },
-  fr: {
     dashboard: "Tableau de bord", transactions: "Transactions", subscriptions: "Abonnements",
     savings: "Épargne", settings: "Paramètres", quickAdd: "Ajouter",
     goodDay: "Bonjour", daysLeft: "jours restants ce mois",
@@ -189,8 +203,9 @@ export const T = {
     health: "Santé", fun: "Loisirs", subscriptionsCat: "Abonnements", other: "Autre",
     salary: "Salaire", client: "Client", freelance: "Freelance",
     monthly: "Mensuel", yearly: "Annuel", weekly: "Hebdomadaire", inDays: "dans", day: "j",
+    subDashboard: "Votre aperçu financier en un coup d'œil", subTransactions: "Tous vos revenus et dépenses", subSubscriptions: "Gérez vos paiements récurrents", subSavings: "Suivez vos progrès vers vos objectifs", subSettings: "Configurez votre expérience SpendSmart",
+    dayOf: "Jour", of: "sur", noTransactionsMonth: "Aucune transaction ce mois.", editMonthlyGoal: "Modifier l'objectif mensuel", monthlyGoalDesc: "Ce montant est réservé avant le calcul du budget journalier.",
   },
-  de: {
     dashboard: "Dashboard", transactions: "Transaktionen", subscriptions: "Abonnements",
     savings: "Ersparnisse", settings: "Einstellungen", quickAdd: "Hinzufügen",
     goodDay: "Guten Tag", daysLeft: "Tage verbleiben diesen Monat",
@@ -242,8 +257,9 @@ export const T = {
     health: "Gesundheit", fun: "Freizeit", subscriptionsCat: "Abonnements", other: "Sonstiges",
     salary: "Gehalt", client: "Kunde", freelance: "Freiberuflich",
     monthly: "Monatlich", yearly: "Jährlich", weekly: "Wöchentlich", inDays: "in", day: "T",
+    subDashboard: "Ihr Finanzüberblick auf einen Blick", subTransactions: "Alle Einnahmen und Ausgaben", subSubscriptions: "Wiederkehrende Zahlungen verwalten", subSavings: "Verfolgen Sie Ihren Fortschritt", subSettings: "SpendSmart konfigurieren",
+    dayOf: "Tag", of: "von", noTransactionsMonth: "Noch keine Transaktionen diesen Monat.", editMonthlyGoal: "Monatsziel bearbeiten", monthlyGoalDesc: "Dieser Betrag wird vor der Berechnung des Tagesbudgets reserviert.",
   },
-  pt: {
     dashboard: "Painel", transactions: "Transações", subscriptions: "Assinaturas",
     savings: "Poupanças", settings: "Configurações", quickAdd: "Adicionar",
     goodDay: "Bom dia", daysLeft: "dias restantes neste mês",
@@ -295,6 +311,8 @@ export const T = {
     health: "Saúde", fun: "Diversão", subscriptionsCat: "Assinaturas", other: "Outro",
     salary: "Salário", client: "Cliente", freelance: "Freelance",
     monthly: "Mensal", yearly: "Anual", weekly: "Semanal", inDays: "em", day: "d",
+    subDashboard: "Sua visão financeira de relance", subTransactions: "Todas as receitas e despesas", subSubscriptions: "Gerencie seus pagamentos recorrentes", subSavings: "Acompanhe seu progresso", subSettings: "Configure sua experiência",
+    dayOf: "Dia", of: "de", noTransactionsMonth: "Nenhuma transação este mês.", editMonthlyGoal: "Editar meta mensal", monthlyGoalDesc: "Este valor é reservado antes de calcular o orçamento diário.",
   },
   ja: {
     dashboard: "ダッシュボード", transactions: "取引", subscriptions: "サブスク",
@@ -348,8 +366,9 @@ export const T = {
     health: "健康", fun: "娯楽", subscriptionsCat: "サブスク", other: "その他",
     salary: "給与", client: "クライアント", freelance: "フリーランス",
     monthly: "毎月", yearly: "毎年", weekly: "毎週", inDays: "後", day: "日",
+    subDashboard: "財務状況の概要", subTransactions: "すべての収支", subSubscriptions: "定期支払いを管理", subSavings: "目標への進捗を確認", subSettings: "SpendSmartを設定",
+    dayOf: "日", of: "/", noTransactionsMonth: "今月の取引はまだありません。", editMonthlyGoal: "月次目標を編集", monthlyGoalDesc: "この金額は日次予算計算前に予約されます。",
   },
-  zh: {
     dashboard: "仪表板", transactions: "交易", subscriptions: "订阅",
     savings: "储蓄", settings: "设置", quickAdd: "添加",
     goodDay: "你好", daysLeft: "天剩余本月",
@@ -401,8 +420,9 @@ export const T = {
     health: "健康", fun: "娱乐", subscriptionsCat: "订阅", other: "其他",
     salary: "薪资", client: "客户", freelance: "自由职业",
     monthly: "每月", yearly: "每年", weekly: "每周", inDays: "后", day: "天",
+    subDashboard: "您的财务概览", subTransactions: "所有收支记录", subSubscriptions: "管理定期付款", subSavings: "追踪目标进度", subSettings: "配置您的体验",
+    dayOf: "第", of: "天/共", noTransactionsMonth: "本月暂无交易。", editMonthlyGoal: "编辑月度目标", monthlyGoalDesc: "此金额在计算每日预算前预留。",
   },
-  ar: {
     dashboard: "لوحة التحكم", transactions: "المعاملات", subscriptions: "الاشتراكات",
     savings: "المدخرات", settings: "الإعدادات", quickAdd: "إضافة",
     goodDay: "مرحباً", daysLeft: "أيام متبقية هذا الشهر",
@@ -454,8 +474,9 @@ export const T = {
     health: "صحة", fun: "ترفيه", subscriptionsCat: "اشتراكات", other: "أخرى",
     salary: "راتب", client: "عميل", freelance: "عمل حر",
     monthly: "شهري", yearly: "سنوي", weekly: "أسبوعي", inDays: "في", day: "ي",
+    subDashboard: "نظرة عامة على وضعك المالي", subTransactions: "جميع الإيرادات والمصروفات", subSubscriptions: "إدارة المدفوعات المتكررة", subSavings: "تتبع تقدمك نحو أهدافك", subSettings: "تخصيص تجربة SpendSmart",
+    dayOf: "اليوم", of: "من", noTransactionsMonth: "لا توجد معاملات هذا الشهر.", editMonthlyGoal: "تعديل الهدف الشهري", monthlyGoalDesc: "يتم حجز هذا المبلغ قبل حساب الميزانية اليومية.",
   },
-  cs: {
     wizardWelcome: "Vítejte v SpendSmart", wizardSub: "Nastavme váš účet ve 3 krocích.",
     wizardStep1: "Jak se jmenujete?", wizardStep1sub: "Použijeme to k personalizaci vaší zkušenosti.",
     wizardStep2: "Zvolte jazyk", wizardStep2sub: "Můžete to kdykoli změnit v Nastavení.",
@@ -512,6 +533,15 @@ export const T = {
     food: "Jídlo", transport: "Doprava", shopping: "Nákupy", bills: "Účty",
     health: "Zdraví", fun: "Zábava", subscriptionsCat: "Předplatné", other: "Ostatní",
     salary: "Plat", client: "Klient", freelance: "Freelance",
+    subDashboard: "Váš finanční přehled na jednom místě",
+    subTransactions: "Všechny příjmy a výdaje na jednom místě",
+    subSubscriptions: "Sledujte opakované platby a rozhodněte se, co si nechat",
+    subSavings: "Sledujte pokrok k tomu, na čem vám záleží",
+    subSettings: "Nastavte si SpendSmart podle sebe",
+    dayOf: "Den", of: "z",
+    noTransactionsMonth: "Tento měsíc zatím žádné transakce.",
+    editMonthlyGoal: "Upravit měsíční cíl",
+    monthlyGoalDesc: "Tato částka je rezervována ze zůstatku před výpočtem denního rozpočtu.",
     monthly: "Měsíčně", yearly: "Ročně", weekly: "Týdně", inDays: "za", day: "d",
   },
 };

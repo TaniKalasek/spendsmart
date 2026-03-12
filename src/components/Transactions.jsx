@@ -54,7 +54,7 @@ export function Transactions({ state, currency, onAdd, onEdit, onDelete, onImpor
       <div className="page-header">
         <div>
           <div className="page-title">{t.transactions}</div>
-          <div className="page-subtitle">All your income and expenses in one place</div>
+          <div className="page-subtitle">{t.subTransactions}</div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <button className="btn btn-ghost btn-sm" onClick={() => setShowCSV(true)}>📂 {t.importCSV}</button>

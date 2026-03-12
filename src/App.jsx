@@ -60,7 +60,7 @@ export default function App() {
       <div className="app-shell">
         {/* Sidebar — desktop & tablet */}
         <nav className="sidebar" style={isRTL ? { left: "auto", right: 0, borderRight: "none", borderLeft: "1px solid var(--border)" } : {}}>
-          <div className="sidebar-logo">💸 SpendSmart</div>
+          <div className="sidebar-logo">SS</div>
           {NAV.map((n) => (
             <div key={n.id} className={`nav-btn ${page === n.id ? "active" : ""}`}
               onClick={() => setPage(n.id)} title={n.label}>
@@ -103,7 +103,8 @@ export default function App() {
               onAdd={(g) => { store.addSavingsGoal(g); notify(`🎯 ${g.label}`); }}
               onUpdate={(id, delta) => { store.updateSavingsGoal(id, delta); notify(delta > 0 ? "💚 Deposited" : "Withdrawn"); }}
               onEdit={(id, patch) => { store.editSavingsGoal(id, patch); notify(`✓ ${t.saved}`); }}
-              onDelete={(id) => { store.deleteSavingsGoal(id); notify("Deleted"); }} />
+              onDelete={(id) => { store.deleteSavingsGoal(id); notify("Deleted"); }}
+              onUpdateSettings={(patch) => { store.updateSettings(patch); notify(`✓ ${t.saved}`); }} />
           )}
           {page === "settings" && (
             <Settings state={state} currency={currency} t={t}

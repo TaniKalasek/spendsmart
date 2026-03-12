@@ -44,7 +44,7 @@ export function Subscriptions({ state, currency, onAdd, onEdit, onToggle, onDele
       <div className="page-header">
         <div>
           <div className="page-title">{t.subscriptions}</div>
-          <div className="page-subtitle">Track recurring payments and decide what to keep</div>
+          <div className="page-subtitle">{t.subSubscriptions}</div>
         </div>
         <button className="btn btn-primary btn-sm" onClick={openAdd}>{t.addSubscription}</button>
       </div>

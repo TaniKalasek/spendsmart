@@ -4,13 +4,12 @@ import { LANGUAGES } from "../data/translations";
 export function Settings({ state, currency, onUpdate, onCurrencyOpen, onReset, t }) {
   const [form, setForm] = useState({
     name: state.settings.name || "",
-    monthlySavingsGoal: state.settings.monthlySavingsGoal || 0,
     language: state.settings.language || "en",
   });
   const [saved, setSaved] = useState(false);
 
   const handleSave = () => {
-    onUpdate({ name: form.name.trim() || "User", monthlySavingsGoal: parseFloat(form.monthlySavingsGoal) || 0, language: form.language });
+    onUpdate({ name: form.name.trim() || "User", language: form.language });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -20,7 +19,7 @@ export function Settings({ state, currency, onUpdate, onCurrencyOpen, onReset, t
       <div className="page-header">
         <div>
           <div className="page-title">{t.settings}</div>
-          <div className="page-subtitle">Configure your SpendSmart experience</div>
+          <div className="page-subtitle">{t.subSettings}</div>
         </div>
       </div>
 
@@ -57,16 +56,6 @@ export function Settings({ state, currency, onUpdate, onCurrencyOpen, onReset, t
           </div>
           <button className="btn btn-ghost btn-sm" onClick={onCurrencyOpen}>{t.change}</button>
         </div>
-      </div>
-
-      <div className="glass" style={{ padding: 24, marginBottom: 14 }}>
-        <div className="section-title">{t.budgetGoals}</div>
-        <div className="field">
-          <label>{t.monthlySavingsTarget} ({currency.symbol})</label>
-          <input type="number" min="0" placeholder="e.g. 5000" value={form.monthlySavingsGoal}
-            onChange={(e) => setForm((f) => ({ ...f, monthlySavingsGoal: e.target.value }))} />
-        </div>
-        <p style={{ fontSize: 12, color: "var(--text-muted)" }}>{t.savingsReserved}</p>
       </div>
 
       <div className="glass" style={{ padding: 24, marginBottom: 14 }}>

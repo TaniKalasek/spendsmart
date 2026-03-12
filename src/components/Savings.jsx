@@ -7,12 +7,14 @@ const GOAL_COLORS = ["#34d399","#06b6d4","#a78bfa","#fbbf24","#f472b6","#60a5fa"
 
 const BLANK_FORM = { label: "", target: "", saved: "", icon: "🎯", color: GOAL_COLORS[0] };
 
-export function Savings({ state, currency, onAdd, onUpdate, onEdit, onDelete, t }) {
+export function Savings({ state, currency, onAdd, onUpdate, onEdit, onDelete, onUpdateSettings, t }) {
   const sym = currency.symbol;
-  const [modal, setModal] = useState(null); // null | "add" | goal-id for edit
+  const [modal, setModal] = useState(null);
   const [depositModal, setDepositModal] = useState(null);
   const [depositForm, setDepositForm] = useState({ amount: "", type: "add" });
   const [form, setForm] = useState(BLANK_FORM);
+  const [editingGoal, setEditingGoal] = useState(false);
+  const [goalInput, setGoalInput] = useState(state.settings?.monthlySavingsGoal || 0);
 
   const totalSaved = state.savings.reduce((s, g) => s + g.saved, 0);
   const totalTarget = state.savings.reduce((s, g) => s + g.target, 0);
@@ -51,7 +53,7 @@ export function Savings({ state, currency, onAdd, onUpdate, onEdit, onDelete, t 
       <div className="page-header">
         <div>
           <div className="page-title">{t.savingsGoals}</div>
-          <div className="page-subtitle">Track your progress toward what matters most</div>
+          <div className="page-subtitle">{t.subSavings}</div>
         </div>
         <button className="btn btn-primary btn-sm" onClick={openAdd}>{t.newGoal}</button>
       </div>
@@ -67,10 +69,29 @@ export function Savings({ state, currency, onAdd, onUpdate, onEdit, onDelete, t 
           <div className="value" style={{ fontSize: 22 }}>{fmt(sym, totalTarget)}</div>
           <div className="sub">{totalTarget > 0 ? Math.round((totalSaved / totalTarget) * 100) : 0}% {t.reached}</div>
         </div>
-        <div className="glass stat-card">
+        <div className="glass stat-card" style={{ cursor: "pointer" }} onClick={() => { setGoalInput(state.settings?.monthlySavingsGoal || 0); setEditingGoal(true); }}>
           <div className="label">{t.monthlyGoal}</div>
-          <div className="value" style={{ color: "var(--purple)", fontSize: 22 }}>{fmt(sym, state.settings.monthlySavingsGoal || 0)}</div>
-          <div className="sub">{t.setInSettings}</div>
+          {editingGoal ? (
+            <div onClick={e => e.stopPropagation()} style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 4 }}>
+              <input
+                autoFocus
+                type="number"
+                value={goalInput}
+                onChange={e => setGoalInput(e.target.value)}
+                style={{ width: "100%", background: "rgba(255,255,255,0.07)", border: "1px solid var(--border-focus)", borderRadius: 8, padding: "4px 8px", color: "var(--text)", fontSize: 16, fontFamily: "Syne, sans-serif", fontWeight: 700, outline: "none" }}
+                onKeyDown={e => {
+                  if (e.key === "Enter") { onUpdateSettings({ monthlySavingsGoal: parseFloat(goalInput) || 0 }); setEditingGoal(false); }
+                  if (e.key === "Escape") setEditingGoal(false);
+                }}
+              />
+              <button className="btn btn-primary btn-sm" onClick={() => { onUpdateSettings({ monthlySavingsGoal: parseFloat(goalInput) || 0 }); setEditingGoal(false); }} style={{ padding: "4px 10px", fontSize: 12 }}>✓</button>
+            </div>
+          ) : (
+            <>
+              <div className="value" style={{ color: "var(--purple)", fontSize: 22 }}>{fmt(sym, state.settings?.monthlySavingsGoal || 0)}</div>
+              <div className="sub" style={{ color: "var(--purple)", opacity: 0.6, fontSize: 11 }}>✏️ {t.editMonthlyGoal}</div>
+            </>
+          )}
         </div>
       </div>
 

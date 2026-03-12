@@ -46,7 +46,10 @@ export function Dashboard({ state, currency, onAdd, onDelete, onCurrencyOpen, t 
   const realBalance = totalIncome - totalExpenses - totalSubs;
   const savingsThisMonth = settings.monthlySavingsGoal || 0;
   const spendableBudget = Math.max(0, realBalance - savingsThisMonth);
-  const dailyBudget = spendableBudget > 0 ? spendableBudget / daysLeft : 0;
+  // Subtract remaining subscription costs this month from spendable before dividing
+  const remainingSubsCost = totalSubs; // already monthly, still owed this month
+  const trueSpendable = Math.max(0, spendableBudget - remainingSubsCost);
+  const dailyBudget = daysLeft > 0 ? trueSpendable / daysLeft : 0;
 
   const chartData = useMemo(() => {
     const now = new Date();
@@ -146,7 +149,7 @@ export function Dashboard({ state, currency, onAdd, onDelete, onCurrencyOpen, t 
             <div className="section-title">{t.monthProgress}</div>
             <div style={{ marginBottom: 12 }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--text-muted)", marginBottom: 5 }}>
-                <span>Day {daysPassed} of {daysInMonth}</span>
+              <span>{t.dayOf} {daysPassed} {t.of} {daysInMonth}</span>
                 <span>{Math.round((daysPassed / daysInMonth) * 100)}%</span>
               </div>
               <div className="progress-bar">
@@ -194,7 +197,7 @@ export function Dashboard({ state, currency, onAdd, onDelete, onCurrencyOpen, t 
           </div>
         </div>
         {recentTx.length === 0 && (
-          <div className="empty-state"><div className="empty-icon">💸</div><p>No transactions this month yet.</p></div>
+          <div className="empty-state"><div className="empty-icon">💸</div><p>{t.noTransactionsMonth}</p></div>
         )}
         {recentTx.map((tx) => (
           <div className="tx-row" key={tx.id}>
