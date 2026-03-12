@@ -27,7 +27,10 @@ export default function App() {
   const langMeta = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0];
   const isRTL = langMeta.dir === "rtl";
 
-  const notify = useCallback((msg) => { setToast(msg); setTimeout(() => setToast(null), 2500); }, []);
+  const notify = useCallback((msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2500);
+  }, []);
 
   const handleAdd = useCallback((tx) => { store.addTransaction(tx); notify(`${tx.type === "income" ? "💰" : "💸"} ${tx.label}`); }, [store, notify]);
   const handleEditTx = useCallback((id, patch) => { store.editTransaction(id, patch); notify(`✓ ${t.saved}`); }, [store, notify, t]);
@@ -44,7 +47,6 @@ export default function App() {
     { id: "settings", icon: "⚙", label: t.settings },
   ];
 
-  // Show setup wizard for new users
   if (state.isNewUser) {
     return <SetupWizard onComplete={handleSetupComplete} />;
   }
@@ -56,25 +58,32 @@ export default function App() {
       </div>
 
       <div className="app-shell">
+        {/* Sidebar — desktop & tablet */}
         <nav className="sidebar" style={isRTL ? { left: "auto", right: 0, borderRight: "none", borderLeft: "1px solid var(--border)" } : {}}>
-          <div className="sidebar-logo">SS</div>
+          <div className="sidebar-logo">💸 SpendSmart</div>
           {NAV.map((n) => (
-            <div key={n.id} className={`nav-btn ${page === n.id ? "active" : ""}`} onClick={() => setPage(n.id)} title={n.label}>
-              {n.icon}
-              <span className="tooltip" style={isRTL ? { left: "auto", right: 58 } : {}}>{n.label}</span>
+            <div key={n.id} className={`nav-btn ${page === n.id ? "active" : ""}`}
+              onClick={() => setPage(n.id)} title={n.label}>
+              <span>{n.icon}</span>
+              <span className="nav-label">{n.label}</span>
+              <span className="tooltip">{n.label}</span>
             </div>
           ))}
           <div className="sidebar-spacer" />
-          <div className="nav-btn" onClick={() => setAddModal(true)} title={t.quickAdd}
+          <div className="nav-btn" onClick={() => setAddModal(true)}
             style={{ background: "rgba(52,211,153,0.12)", border: "1px solid rgba(52,211,153,0.25)", color: "var(--green)" }}>
-            +<span className="tooltip" style={isRTL ? { left: "auto", right: 58 } : {}}>{t.quickAdd}</span>
+            <span>+</span>
+            <span className="nav-label">{t.quickAdd}</span>
+            <span className="tooltip">{t.quickAdd}</span>
           </div>
         </nav>
 
-        <main className="main" style={isRTL ? { marginLeft: 0, marginRight: 72 } : {}}>
+        {/* Main content */}
+        <main className="main" style={isRTL ? { marginLeft: 0, marginRight: 180 } : {}}>
           {page === "dashboard" && (
             <Dashboard state={state} currency={currency} t={t}
-              onAdd={() => setAddModal(true)} onDelete={handleDelete} onCurrencyOpen={() => setShowCurrency(true)} />
+              onAdd={() => setAddModal(true)} onDelete={handleDelete}
+              onCurrencyOpen={() => setShowCurrency(true)} />
           )}
           {page === "transactions" && (
             <Transactions state={state} currency={currency} t={t}
@@ -105,13 +114,44 @@ export default function App() {
         </main>
       </div>
 
+      {/* Bottom nav — mobile only */}
+      <nav className="bottom-nav">
+        {NAV.slice(0, 2).map((n) => (
+          <div key={n.id} className={`bottom-nav-btn ${page === n.id ? "active" : ""}`}
+            onClick={() => setPage(n.id)}>
+            <span className="bottom-icon">{n.icon}</span>
+            <span className="bottom-label">{n.label}</span>
+          </div>
+        ))}
+
+        {/* Centre add button */}
+        <div className="bottom-nav-add" onClick={() => setAddModal(true)}>
+          <div className="add-bubble">+</div>
+        </div>
+
+        {NAV.slice(2, 4).map((n) => (
+          <div key={n.id} className={`bottom-nav-btn ${page === n.id ? "active" : ""}`}
+            onClick={() => setPage(n.id)}>
+            <span className="bottom-icon">{n.icon}</span>
+            <span className="bottom-label">{n.label}</span>
+          </div>
+        ))}
+
+        <div className={`bottom-nav-btn ${page === "settings" ? "active" : ""}`}
+          onClick={() => setPage("settings")}>
+          <span className="bottom-icon">⚙</span>
+          <span className="bottom-label">{t.settings}</span>
+        </div>
+      </nav>
+
       {(addModal || editTx) && (
         <AddTransactionModal currency={currency} t={t} editTx={editTx}
           onAdd={handleAdd} onEdit={handleEditTx}
           onClose={() => { setAddModal(false); setEditTx(null); }} />
       )}
       {showCurrency && (
-        <CurrencyModal current={state.currency} onSelect={handleCurrency} onClose={() => setShowCurrency(false)} t={t} />
+        <CurrencyModal current={state.currency} onSelect={handleCurrency}
+          onClose={() => setShowCurrency(false)} t={t} />
       )}
       <Toast message={toast} />
     </div>
