@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LANGUAGES } from "../data/translations";
 
-export function Settings({ state, currency, onUpdate, onCurrencyOpen, onReset, t }) {
+export function Settings({ state, currency, onUpdate, onCurrencyOpen, onReset, onSignOut, userEmail, t }) {
   const [form, setForm] = useState({
     name: state.settings.name || "",
     language: state.settings.language || "en",
@@ -20,6 +20,17 @@ export function Settings({ state, currency, onUpdate, onCurrencyOpen, onReset, t
         <div>
           <div className="page-title">{t.settings}</div>
           <div className="page-subtitle">{t.subSettings}</div>
+        </div>
+      </div>
+
+      <div className="glass" style={{ padding: 24, marginBottom: 14 }}>
+        <div className="section-title">Account</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ fontSize: 14, color: "var(--text)" }}>📧 {userEmail}</div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>Synced across all devices</div>
+          </div>
+          <button className="btn btn-ghost btn-sm" onClick={onSignOut}>Sign out ⏻</button>
         </div>
       </div>
 

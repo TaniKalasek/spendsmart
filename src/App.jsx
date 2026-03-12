@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useStore } from "./hooks/useStore";
 import { CURRENCIES } from "./data/constants";
-import { LANGUAGES, useT } from "./data/translations";
+import { useT } from "./data/translations";
 import { Dashboard } from "./components/Dashboard";
 import { Transactions } from "./components/Transactions";
 import { Subscriptions } from "./components/Subscriptions";
@@ -12,8 +12,8 @@ import { CurrencyModal } from "./components/CurrencyModal";
 import { SetupWizard } from "./components/SetupWizard";
 import { Toast } from "./components/Modal";
 
-export default function App() {
-  const store = useStore();
+export default function App({ userId, userEmail, onLogout }) {
+  const store = useStore(userId);
   const { state } = store;
   const [page, setPage] = useState("dashboard");
   const [addModal, setAddModal] = useState(false);
@@ -23,9 +23,8 @@ export default function App() {
 
   const lang = state.settings?.language || "en";
   const t = useT(lang);
-  const currency = CURRENCIES.find((c) => c.code === state.currency) || CURRENCIES[0];
-  const langMeta = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0];
-  const isRTL = langMeta.dir === "rtl";
+  const currency = CURRENCIES.find((c) => c.code === (state.settings?.currency || "CZK")) || CURRENCIES[0];
+  const isRTL = lang === "ar";
 
   const notify = useCallback((msg) => {
     setToast(msg);
@@ -37,7 +36,6 @@ export default function App() {
   const handleDelete = useCallback((id) => { store.deleteTransaction(id); notify("Deleted"); }, [store, notify]);
   const handleImport = useCallback((txs) => { store.importTransactions(txs); notify(`✓ ${t.importBtn} ${txs.length}`); }, [store, notify, t]);
   const handleCurrency = useCallback((code) => { store.setCurrency(code); const c = CURRENCIES.find((cur) => cur.code === code); notify(`${c?.flag} ${c?.name}`); }, [store, notify]);
-  const handleSetupComplete = useCallback((data) => { store.completeSetup(data); }, [store]);
 
   const NAV = [
     { id: "dashboard", icon: "◈", label: t.dashboard },
@@ -47,8 +45,17 @@ export default function App() {
     { id: "settings", icon: "⚙", label: t.settings },
   ];
 
+  if (state.loading) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 12 }}>
+        <div style={{ fontFamily: "Syne, sans-serif", fontSize: 28, fontWeight: 800, color: "var(--green)" }}>💸 SpendSmart</div>
+        <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Loading your data…</div>
+      </div>
+    );
+  }
+
   if (state.isNewUser) {
-    return <SetupWizard onComplete={handleSetupComplete} />;
+    return <SetupWizard onComplete={(data) => store.completeSetup(data)} />;
   }
 
   return (
@@ -58,7 +65,7 @@ export default function App() {
       </div>
 
       <div className="app-shell">
-        {/* Sidebar — desktop & tablet */}
+        {/* Sidebar */}
         <nav className="sidebar" style={isRTL ? { left: "auto", right: 0, borderRight: "none", borderLeft: "1px solid var(--border)" } : {}}>
           <div className="sidebar-logo">SS</div>
           {NAV.map((n) => (
@@ -70,15 +77,21 @@ export default function App() {
             </div>
           ))}
           <div className="sidebar-spacer" />
-          <div className="nav-btn" onClick={() => setAddModal(true)}
-            style={{ background: "rgba(52,211,153,0.12)", border: "1px solid rgba(52,211,153,0.25)", color: "var(--green)" }}>
-            <span>+</span>
-            <span className="nav-label">{t.quickAdd}</span>
-            <span className="tooltip">{t.quickAdd}</span>
+          {/* User info + logout */}
+          <div style={{ padding: "0 8px", marginBottom: 8 }}>
+            <div style={{ fontSize: 10, color: "var(--text-muted)", marginBottom: 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} className="nav-label">
+              {userEmail}
+            </div>
+            <div className="nav-btn" onClick={onLogout}
+              style={{ color: "var(--text-muted)", fontSize: 16, width: "100%", justifyContent: "flex-start" }}>
+              <span>⏻</span>
+              <span className="nav-label" style={{ fontSize: 12 }}>Log out</span>
+              <span className="tooltip">Log out</span>
+            </div>
           </div>
         </nav>
 
-        {/* Main content */}
+        {/* Main */}
         <main className="main" style={isRTL ? { marginLeft: 0, marginRight: 180 } : {}}>
           {page === "dashboard" && (
             <Dashboard state={state} currency={currency} t={t}
@@ -115,7 +128,7 @@ export default function App() {
         </main>
       </div>
 
-      {/* Bottom nav — mobile only */}
+      {/* Bottom nav — mobile */}
       <nav className="bottom-nav">
         {NAV.map((n) => (
           <div key={n.id} className={`bottom-nav-btn ${page === n.id ? "active" : ""}`}
@@ -132,7 +145,7 @@ export default function App() {
           onClose={() => { setAddModal(false); setEditTx(null); }} />
       )}
       {showCurrency && (
-        <CurrencyModal current={state.currency} onSelect={handleCurrency}
+        <CurrencyModal current={state.settings?.currency} onSelect={handleCurrency}
           onClose={() => setShowCurrency(false)} t={t} />
       )}
       <Toast message={toast} />

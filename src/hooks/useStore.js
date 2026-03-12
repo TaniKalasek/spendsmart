@@ -1,109 +1,171 @@
-import { useState, useEffect, useCallback } from "react";
-import { INITIAL_STATE } from "../data/constants";
+import { useState, useEffect, useCallback } from 'react'
+import { supabase } from '../lib/supabase'
 
-const STORAGE_KEY = "spendsmart-v2";
-
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return INITIAL_STATE;
+const EMPTY_STATE = {
+  transactions: [],
+  subscriptions: [],
+  savings: [],
+  settings: { name: '', language: 'en', currency: 'CZK', monthlySavingsGoal: 0 },
+  isNewUser: false,
+  loading: true,
 }
 
-function saveState(state) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {}
-}
+export function useStore(userId) {
+  const [state, setState] = useState(EMPTY_STATE)
 
-export function useStore() {
-  const [state, setState] = useState(() => loadState());
+  // Load all data from Supabase on mount
+  useEffect(() => {
+    if (!userId) return
+    loadAll()
+  }, [userId])
 
-  useEffect(() => { saveState(state); }, [state]);
+  async function loadAll() {
+    setState(s => ({ ...s, loading: true }))
+    try {
+      const [txRes, subRes, savRes, setRes] = await Promise.all([
+        supabase.from('transactions').select('*').eq('user_id', userId).order('date', { ascending: false }),
+        supabase.from('subscriptions').select('*').eq('user_id', userId),
+        supabase.from('savings').select('*').eq('user_id', userId),
+        supabase.from('user_settings').select('*').eq('id', userId).single(),
+      ])
 
-  const update = useCallback((fn) => setState((prev) => fn(prev)), []);
+      const settings = setRes.data
+        ? {
+            name: setRes.data.name || '',
+            language: setRes.data.language || 'en',
+            currency: setRes.data.currency || 'CZK',
+            monthlySavingsGoal: setRes.data.monthly_savings_goal || 0,
+          }
+        : { name: '', language: 'en', currency: 'CZK', monthlySavingsGoal: 0 }
 
-  // Wizard completion — sets name, language, currency, marks not new
-  const completeSetup = useCallback(({ name, language, currency }) => {
-    update((s) => ({
-      ...s,
-      currency,
-      isNewUser: false,
-      settings: { ...s.settings, name, language, monthlySavingsGoal: 0 },
-    }));
-  }, [update]);
+      setState({
+        transactions: txRes.data || [],
+        subscriptions: subRes.data || [],
+        savings: savRes.data || [],
+        settings,
+        isNewUser: !setRes.data,
+        loading: false,
+      })
+    } catch (e) {
+      console.error('Load error:', e)
+      setState(s => ({ ...s, loading: false }))
+    }
+  }
 
-  // Transactions
-  const addTransaction = useCallback((tx) => {
-    update((s) => ({ ...s, transactions: [{ ...tx, id: Date.now() }, ...s.transactions] }));
-  }, [update]);
+  // ── Transactions ──────────────────────────────────────
+  const addTransaction = useCallback(async (tx) => {
+    const row = { ...tx, user_id: userId }
+    const { data } = await supabase.from('transactions').insert(row).select().single()
+    if (data) setState(s => ({ ...s, transactions: [data, ...s.transactions] }))
+  }, [userId])
 
-  const deleteTransaction = useCallback((id) => {
-    update((s) => ({ ...s, transactions: s.transactions.filter((t) => t.id !== id) }));
-  }, [update]);
+  const editTransaction = useCallback(async (id, patch) => {
+    await supabase.from('transactions').update(patch).eq('id', id).eq('user_id', userId)
+    setState(s => ({ ...s, transactions: s.transactions.map(t => t.id === id ? { ...t, ...patch } : t) }))
+  }, [userId])
 
-  const editTransaction = useCallback((id, patch) => {
-    update((s) => ({ ...s, transactions: s.transactions.map((t) => t.id === id ? { ...t, ...patch } : t) }));
-  }, [update]);
+  const deleteTransaction = useCallback(async (id) => {
+    await supabase.from('transactions').delete().eq('id', id).eq('user_id', userId)
+    setState(s => ({ ...s, transactions: s.transactions.filter(t => t.id !== id) }))
+  }, [userId])
 
-  const importTransactions = useCallback((txs) => {
-    update((s) => ({ ...s, transactions: [...txs, ...s.transactions] }));
-  }, [update]);
+  const importTransactions = useCallback(async (txs) => {
+    const rows = txs.map(tx => ({ ...tx, user_id: userId }))
+    const { data } = await supabase.from('transactions').insert(rows).select()
+    if (data) setState(s => ({ ...s, transactions: [...data, ...s.transactions] }))
+  }, [userId])
 
-  // Subscriptions
-  const addSubscription = useCallback((sub) => {
-    update((s) => ({ ...s, subscriptions: [{ ...sub, id: Date.now() }, ...s.subscriptions] }));
-  }, [update]);
+  // ── Subscriptions ─────────────────────────────────────
+  const addSubscription = useCallback(async (sub) => {
+    const row = { ...sub, user_id: userId }
+    const { data } = await supabase.from('subscriptions').insert(row).select().single()
+    if (data) setState(s => ({ ...s, subscriptions: [...s.subscriptions, data] }))
+  }, [userId])
 
-  const toggleSubscription = useCallback((id) => {
-    update((s) => ({ ...s, subscriptions: s.subscriptions.map((sub) => sub.id === id ? { ...sub, active: !sub.active } : sub) }));
-  }, [update]);
+  const editSubscription = useCallback(async (id, patch) => {
+    await supabase.from('subscriptions').update(patch).eq('id', id).eq('user_id', userId)
+    setState(s => ({ ...s, subscriptions: s.subscriptions.map(sub => sub.id === id ? { ...sub, ...patch } : sub) }))
+  }, [userId])
 
-  const deleteSubscription = useCallback((id) => {
-    update((s) => ({ ...s, subscriptions: s.subscriptions.filter((sub) => sub.id !== id) }));
-  }, [update]);
+  const toggleSubscription = useCallback(async (id) => {
+    const sub = state.subscriptions.find(s => s.id === id)
+    if (!sub) return
+    const active = !sub.active
+    await supabase.from('subscriptions').update({ active }).eq('id', id).eq('user_id', userId)
+    setState(s => ({ ...s, subscriptions: s.subscriptions.map(sub => sub.id === id ? { ...sub, active } : sub) }))
+  }, [userId, state.subscriptions])
 
-  const editSubscription = useCallback((id, patch) => {
-    update((s) => ({ ...s, subscriptions: s.subscriptions.map((sub) => sub.id === id ? { ...sub, ...patch } : sub) }));
-  }, [update]);
+  const deleteSubscription = useCallback(async (id) => {
+    await supabase.from('subscriptions').delete().eq('id', id).eq('user_id', userId)
+    setState(s => ({ ...s, subscriptions: s.subscriptions.filter(sub => sub.id !== id) }))
+  }, [userId])
 
-  // Savings
-  const addSavingsGoal = useCallback((goal) => {
-    update((s) => ({ ...s, savings: [...s.savings, { ...goal, id: Date.now() }] }));
-  }, [update]);
+  // ── Savings ───────────────────────────────────────────
+  const addSavingsGoal = useCallback(async (goal) => {
+    const row = { ...goal, user_id: userId }
+    const { data } = await supabase.from('savings').insert(row).select().single()
+    if (data) setState(s => ({ ...s, savings: [...s.savings, data] }))
+  }, [userId])
 
-  const updateSavingsGoal = useCallback((id, delta) => {
-    update((s) => ({ ...s, savings: s.savings.map((g) => g.id === id ? { ...g, saved: Math.max(0, g.saved + delta) } : g) }));
-  }, [update]);
+  const editSavingsGoal = useCallback(async (id, patch) => {
+    await supabase.from('savings').update(patch).eq('id', id).eq('user_id', userId)
+    setState(s => ({ ...s, savings: s.savings.map(g => g.id === id ? { ...g, ...patch } : g) }))
+  }, [userId])
 
-  const editSavingsGoal = useCallback((id, patch) => {
-    update((s) => ({ ...s, savings: s.savings.map((g) => g.id === id ? { ...g, ...patch } : g) }));
-  }, [update]);
+  const updateSavingsGoal = useCallback(async (id, delta) => {
+    const goal = state.savings.find(g => g.id === id)
+    if (!goal) return
+    const saved = Math.max(0, (goal.saved || 0) + delta)
+    await supabase.from('savings').update({ saved }).eq('id', id).eq('user_id', userId)
+    setState(s => ({ ...s, savings: s.savings.map(g => g.id === id ? { ...g, saved } : g) }))
+  }, [userId, state.savings])
 
-  const deleteSavingsGoal = useCallback((id) => {
-    update((s) => ({ ...s, savings: s.savings.filter((g) => g.id !== id) }));
-  }, [update]);
+  const deleteSavingsGoal = useCallback(async (id) => {
+    await supabase.from('savings').delete().eq('id', id).eq('user_id', userId)
+    setState(s => ({ ...s, savings: s.savings.filter(g => g.id !== id) }))
+  }, [userId])
 
-  // Settings
-  const updateSettings = useCallback((patch) => {
-    update((s) => ({ ...s, settings: { ...s.settings, ...patch } }));
-  }, [update]);
+  // ── Settings ──────────────────────────────────────────
+  const updateSettings = useCallback(async (patch) => {
+    const dbPatch = {}
+    if (patch.name !== undefined) dbPatch.name = patch.name
+    if (patch.language !== undefined) dbPatch.language = patch.language
+    if (patch.currency !== undefined) dbPatch.currency = patch.currency
+    if (patch.monthlySavingsGoal !== undefined) dbPatch.monthly_savings_goal = patch.monthlySavingsGoal
+    dbPatch.updated_at = new Date().toISOString()
 
-  const setCurrency = useCallback((code) => {
-    update((s) => ({ ...s, currency: code }));
-  }, [update]);
+    await supabase.from('user_settings').upsert({ id: userId, ...dbPatch })
+    setState(s => ({ ...s, settings: { ...s.settings, ...patch }, isNewUser: false }))
+  }, [userId])
 
-  const resetData = useCallback(() => {
-    setState(INITIAL_STATE);
-  }, []);
+  const setCurrency = useCallback(async (currency) => {
+    await supabase.from('user_settings').upsert({ id: userId, currency, updated_at: new Date().toISOString() })
+    setState(s => ({ ...s, settings: { ...s.settings, currency } }))
+  }, [userId])
+
+  const completeSetup = useCallback(async ({ name, language, currency }) => {
+    await supabase.from('user_settings').upsert({
+      id: userId, name, language, currency,
+      monthly_savings_goal: 0, updated_at: new Date().toISOString()
+    })
+    setState(s => ({ ...s, settings: { name, language, currency, monthlySavingsGoal: 0 }, isNewUser: false }))
+  }, [userId])
+
+  const resetData = useCallback(async () => {
+    await Promise.all([
+      supabase.from('transactions').delete().eq('user_id', userId),
+      supabase.from('subscriptions').delete().eq('user_id', userId),
+      supabase.from('savings').delete().eq('user_id', userId),
+      supabase.from('user_settings').delete().eq('id', userId),
+    ])
+    setState({ ...EMPTY_STATE, loading: false, isNewUser: true })
+  }, [userId])
 
   return {
     state,
-    completeSetup,
-    addTransaction, deleteTransaction, editTransaction, importTransactions,
-    addSubscription, toggleSubscription, deleteSubscription, editSubscription,
-    addSavingsGoal, updateSavingsGoal, editSavingsGoal, deleteSavingsGoal,
-    updateSettings, setCurrency, resetData,
-  };
+    addTransaction, editTransaction, deleteTransaction, importTransactions,
+    addSubscription, editSubscription, toggleSubscription, deleteSubscription,
+    addSavingsGoal, editSavingsGoal, updateSavingsGoal, deleteSavingsGoal,
+    updateSettings, setCurrency, completeSetup, resetData,
+  }
 }
